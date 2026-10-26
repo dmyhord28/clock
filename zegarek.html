@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stary Drewniany Zegar z Kukułką</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=MedievalSharp&display=swap');
+
+        body {
+            font-family: 'Cinzel', serif;
+            background: radial-gradient(circle at center, #2c1d11 0%, #120b06 100%);
+            color: #e2d1b9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Wood Patterns & Carving Effects */
+        .wood-texture {
+            background-color: #4a2c11;
+            background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px, transparent 2px, transparent 4px),
+                              linear-gradient(to bottom, #5c3818, #3b200a);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.9);
+        }
+
+        .wood-dark {
+            background: linear-gradient(135deg, #2e1706, #42230c, #1a0b02);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+        }
+
+        .gold-metal {
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Pendulum Animation */
+        @keyframes swing {
+            0% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+            100% { transform: rotate(-8deg); }
+        }
+
+        .swinging {
+            transform-origin: top center;
+            animation: swing 2s ease-in-out infinite;
+        }
+
+        /* Door Mechanics */
+        .door-left, .door-right {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .doors-open .door-left {
+            transform: rotateY(-110deg);
+        }
+        .doors-open .door-right {
+            transform: rotateY(110deg);
+        }
+
+        /* Mechanical Arm & Bird */
+        .cuckoo-mechanism {
+            transform: translateY(100px) scale(0);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cuckoo-active .cuckoo-mechanism {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        /* Bird Wing Flap & Bow */
+        @keyframes kuku-action {
+            0%, 100% { transform: translate(-50%, 0) rotate(0deg); }
+            50% { transform: translate(-50%, -8px) rotate(-10deg); }
+        }
+
+        @keyframes wing-left {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(35deg); }
+        }
+
+        @keyframes wing-right {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-35deg); }
+        }
+
+        .bird-singing {
+            animation: kuku-action 0.4s ease-in-out infinite;
+        }
+        .bird-singing .left-wing {
+            transform-origin: right center;
+            animation: wing-left 0.4s ease-in-out infinite;
+        }
+        .bird-singing .right-wing {
+            transform-origin: left center;
+            animation: wing-right 0.4s ease-in-out infinite;
+        }
+
+        /* Beak animation */
+        @keyframes open-beak {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+        .bird-singing .beak-bottom {
+            transform-origin: top left;
+            animation: open-beak 0.4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-4 sm:p-6 select-none">
+
+    <!-- Header / Title -->
+    <header class="text-center my-2">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-wider text-amber-200 drop-shadow-md">
+            Tradycyjny Zegar z Kukułką
+        </h1>
+        <p class="text-xs sm:text-sm text-amber-400/80 mt-1 italic">Stylizowany zegar mechaniczny z XX wieku</p>
+    </header>
+
+    <!-- Main Clock Container -->
+    <div class="relative flex flex-col items-center justify-center my-auto scale-90 sm:scale-100">
+
+        <!-- Roof of Clock House -->
+        <div class="relative z-30 w-80 h-36">
+            <!-- Left Roof Slope -->
+            <div class="absolute left-2 top-4 w-44 h-12 wood-dark rounded-md transform -rotate-25 origin-right border-b-4 border-amber-900 shadow-2xl flex items-center justify-center overflow-hidden">
+                <div class="w-full h-full opacity-30 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:8px_8px]"></div>
+            </div>
+            <!-- Right Roof Slope -->
+            <div class="absolute right-2 top-4 w-44 h-12 wood-dark rounded-md transform rotate-25 origin-left border-b-4 border-amber-900 shadow-2xl flex items-center justify-center overflow-hidden">
+                <div class="w-full h-full opacity-30 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:8px_8px]"></div>
+            </div>
+            <!-- Roof Apex Carving Decor -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 z-40 text-amber-700">
+                <svg width="60" height="50" viewBox="0 0 60 50">
+                    <polygon points="30,0 60,40 45,50 30,25 15,50 0,40" fill="#3b200a" stroke="#1a0b02" stroke-width="2"/>
+                    <circle cx="30" cy="20" r="6" fill="#8c531c" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Clock Main Body Frame -->
+        <div class="relative z-20 w-72 h-96 wood-texture rounded-b-3xl border-4 border-amber-950 flex flex-col items-center pt-4 shadow-2xl">
+            
+            <!-- Carved Wooden Leaves Decoration Side Panels -->
+            <div class="absolute -left-10 top-16 w-12 h-48 text-amber-900 pointer-events-none">
+                <svg width="50" height="200" viewBox="0 0 50 200" fill="currentColor">
+                    <path d="M40,10 Q10,40 30,70 Q0,100 35,130 Q10,160 45,190 Q50,140 40,10 Z" fill="#3b200a" stroke="#211003" stroke-width="2"/>
+                </svg>
+            </div>
+            <div class="absolute -right-10 top-16 w-12 h-48 text-amber-900 pointer-events-none transform scale-x-[-1]">
+                <svg width="50" height="200" viewBox="0 0 50 200" fill="currentColor">
+                    <path d="M40,10 Q10,40 30,70 Q0,100 35,130 Q10,160 45,190 Q50,140 40,10 Z" fill="#3b200a" stroke="#211003" stroke-width="2"/>
+                </svg>
+            </div>
+
+            <!-- Cuckoo Door & Window Niche -->
+            <div id="cuckooHouse" class="relative w-24 h-28 bg-stone-900 rounded-t-full border-4 border-amber-950 overflow-hidden shadow-inner flex justify-center items-end">
+                
+                <!-- Inside Niche Background Shadow -->
+                <div class="absolute inset-0 bg-black/60 z-0"></div>
+
+                <!-- Cuckoo Bird Assembly -->
+                <div id="cuckooBirdGroup" class="cuckoo-mechanism absolute bottom-2 left-1/2 z-10 w-20 h-20 -translate-x-1/2">
+                    <!-- Scissors Mechanical Metal Arm -->
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-12 flex flex-col justify-between items-center opacity-80">
+                        <div class="w-full h-1 bg-neutral-600 rounded"></div>
+                        <div class="w-full h-1 bg-neutral-500 rounded"></div>
+                        <div class="w-full h-1 bg-neutral-700 rounded"></div>
+                    </div>
+
+                    <!-- Bird Body SVG -->
+                    <div id="birdBody" class="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-16">
+                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+                            <!-- Tail -->
+                            <path d="M 20 60 L 0 75 L 10 55 Z" fill="#4a3525" />
+                            <!-- Left Wing -->
+                            <path class="left-wing" d="M 40 45 C 20 30, 20 60, 45 55 Z" fill="#8c5a36" stroke="#2b1704" stroke-width="2"/>
+                            <!-- Right Wing -->
+                            <path class="right-wing" d="M 55 45 C 75 30, 75 60, 50 55 Z" fill="#8c5a36" stroke="#2b1704" stroke-width="2"/>
+                            <!-- Main Body -->
+                            <ellipse cx="48" cy="50" rx="20" ry="16" fill="#a66e44" />
+                            <ellipse cx="48" cy="53" rx="14" ry="10" fill="#d9a779" />
+                            <!-- Head -->
+                            <circle cx="65" cy="38" r="12" fill="#734322" />
+                            <!-- Eye -->
+                            <circle cx="69" cy="35" r="2.5" fill="#ffffff" />
+                            <circle cx="70" cy="35" r="1.2" fill="#000000" />
+                            <!-- Beak Top -->
+                            <path d="M 76 36 L 88 40 L 76 42 Z" fill="#e6a100" />
+                            <!-- Beak Bottom (Animated) -->
+                            <path class="beak-bottom" d="M 76 42 L 85 45 L 75 44 Z" fill="#c48800" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Wooden Doors (Perspective container) -->
+                <div id="doorsContainer" class="absolute inset-0 z-20 flex justify-between pointer-events-none" style="perspective: 400px;">
+                    <!-- Left Door -->
+                    <div class="door-left w-1/2 h-full bg-amber-900 border-r border-amber-950 flex items-center justify-end pr-1 shadow-md origin-left">
+                        <div class="w-1.5 h-6 bg-amber-950 rounded-sm"></div>
+                    </div>
+                    <!-- Right Door -->
+                    <div class="door-right w-1/2 h-full bg-amber-900 border-l border-amber-950 flex items-center justify-start pl-1 shadow-md origin-right">
+                        <div class="w-1.5 h-6 bg-amber-950 rounded-sm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clock Face (Dial) -->
+            <div class="relative mt-4 w-52 h-52 rounded-full border-8 border-amber-950 bg-amber-100/90 shadow-2xl flex items-center justify-center overflow-hidden">
+                
+                <!-- Dial Wood Texture Grain -->
+                <div class="absolute inset-0 opacity-25 bg-[radial-gradient(#7c4d25_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                <!-- Brass Outer Ring -->
+                <div class="absolute inset-1 rounded-full border-2 border-amber-700/50"></div>
+
+                <!-- Roman Numerals -->
+                <div class="absolute inset-0 font-serif font-bold text-amber-950 text-lg flex items-center justify-center">
+                    <!-- 12 --> <span class="absolute top-2 font-extrabold text-xl">XII</span>
+                    <!-- 1 -->  <span class="absolute top-5 right-12">I</span>
+                    <!-- 2 -->  <span class="absolute top-12 right-5">II</span>
+                    <!-- 3 -->  <span class="absolute right-2 font-extrabold text-xl">III</span>
+                    <!-- 4 -->  <span class="absolute bottom-12 right-5">IV</span>
+                    <!-- 5 -->  <span class="absolute bottom-5 right-12">V</span>
+                    <!-- 6 -->  <span class="absolute bottom-2 font-extrabold text-xl">VI</span>
+                    <!-- 7 -->  <span class="absolute bottom-5 left-12">VII</span>
+                    <!-- 8 -->  <span class="absolute bottom-12 left-5">VIII</span>
+                    <!-- 9 -->  <span class="absolute left-2 font-extrabold text-xl">IX</span>
+                    <!-- 10 --> <span class="absolute top-12 left-5">X</span>
+                    <!-- 11 --> <span class="absolute top-5 left-12">XI</span>
+                </div>
+
+                <!-- Clock Center Brass Cap -->
+                <div class="absolute z-30 w-5 h-5 rounded-full bg-gradient-to-tr from-amber-700 via-yellow-400 to-amber-900 shadow-md border border-amber-950"></div>
+
+                <!-- Hour Hand -->
+                <div id="hourHand" class="absolute z-20 top-1/2 left-1/2 w-2 h-16 bg-neutral-900 rounded-t-full origin-bottom -translate-x-1/2 -translate-y-full transition-transform duration-300 shadow-md">
+                    <div class="w-4 h-4 rounded-full border-2 border-neutral-900 absolute top-2 left-1/2 -translate-x-1/2"></div>
+                </div>
+
+                <!-- Minute Hand -->
+                <div id="minuteHand" class="absolute z-20 top-1/2 left-1/2 w-1.5 h-22 bg-neutral-800 rounded-t-full origin-bottom -translate-x-1/2 -translate-y-full transition-transform duration-100 shadow-md">
+                    <div class="w-3 h-3 rounded-full border-2 border-neutral-800 absolute top-4 left-1/2 -translate-x-1/2"></div>
+                </div>
+
+                <!-- Second Hand (Classic Vintage Red Accent) -->
+                <div id="secondHand" class="absolute z-20 top-1/2 left-1/2 w-0.5 h-24 bg-red-800 origin-bottom -translate-x-1/2 -translate-y-full transition-transform duration-75"></div>
+            </div>
+
+            <!-- Bottom Carving Edge -->
+            <div class="absolute -bottom-5 w-80 h-8 text-amber-950 flex justify-center">
+                <svg width="300" height="30" viewBox="0 0 300 30" fill="currentColor">
+                    <path d="M0,0 Q30,30 75,10 Q150,40 225,10 Q270,30 300,0 Z" fill="#2e1706" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Hanging Chains, Weights (Pinecones) & Pendulum -->
+        <div class="relative z-10 w-64 h-64 -mt-2 flex justify-around">
+            
+            <!-- Left Chain & Pinecone Weight -->
+            <div class="flex flex-col items-center">
+                <!-- Metallic Chain -->
+                <div class="w-1.5 h-36 bg-repeat-y opacity-80" style="background-image: radial-gradient(circle, #8a7343 2px, transparent 3px); background-size: 6px 8px;"></div>
+                <!-- Pinecone Weight SVG -->
+                <div class="w-8 h-20 -mt-1 drop-shadow-lg">
+                    <svg viewBox="0 0 40 100" class="w-full h-full">
+                        <path d="M20,0 L25,10 C35,20 40,40 35,70 C30,90 20,100 20,100 C20,100 10,90 5,70 C0,40 5,20 15,10 Z" fill="#543318" stroke="#2b1704" stroke-width="2"/>
+                        <!-- Pinecone Scales Texture -->
+                        <path d="M10,20 Q20,30 30,20 M5,35 Q20,50 35,35 M5,55 Q20,70 35,55 M10,75 Q20,85 30,75" stroke="#2b1704" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Central Swinging Pendulum -->
+            <div id="pendulum" class="swinging flex flex-col items-center -mt-2">
+                <!-- Wooden Rod -->
+                <div class="w-2 h-44 bg-gradient-to-b from-amber-950 via-amber-800 to-amber-950 rounded-sm"></div>
+                <!-- Brass Bob / Disk -->
+                <div class="w-16 h-16 -mt-2 rounded-full bg-radial from-yellow-200 via-amber-600 to-amber-950 border-2 border-amber-900 shadow-xl flex items-center justify-center">
+                    <div class="w-10 h-10 rounded-full border border-amber-800/60"></div>
+                </div>
+            </div>
+
+            <!-- Right Chain & Pinecone Weight -->
+            <div class="flex flex-col items-center">
+                <!-- Metallic Chain -->
+                <div class="w-1.5 h-44 bg-repeat-y opacity-80" style="background-image: radial-gradient(circle, #8a7343 2px, transparent 3px); background-size: 6px 8px;"></div>
+                <!-- Pinecone Weight SVG -->
+                <div class="w-8 h-20 -mt-1 drop-shadow-lg">
+                    <svg viewBox="0 0 40 100" class="w-full h-full">
+                        <path d="M20,0 L25,10 C35,20 40,40 35,70 C30,90 20,100 20,100 C20,100 10,90 5,70 C0,40 5,20 15,10 Z" fill="#543318" stroke="#2b1704" stroke-width="2"/>
+                        <path d="M10,20 Q20,30 30,20 M5,35 Q20,50 35,35 M5,55 Q20,70 35,55 M10,75 Q20,85 30,75" stroke="#2b1704" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Control Panel -->
+    <footer class="w-full max-w-xl bg-amber-950/80 backdrop-blur-md border border-amber-800/50 rounded-2xl p-4 shadow-2xl mt-4 z-40">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Manual Trigger Button -->
+            <button id="btnTestCuckoo" class="flex-1 min-w-[140px] px-4 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-600 hover:to-amber-800 text-amber-100 font-bold rounded-xl shadow-lg border border-amber-600/50 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <span>Wywołaj Kukułkę</span>
+                <span class="text-lg">🐦</span>
+            </button>
+
+            <!-- Audio Controls -->
+            <div class="flex items-center gap-3 bg-black/40 px-3 py-1.5 rounded-xl border border-amber-900/40">
+                <button id="btnMute" class="text-amber-200 hover:text-white transition">
+                    <svg id="iconSoundOn" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.586 6.414a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/>
+                    </svg>
+                    <svg id="iconSoundOff" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+                    </svg>
+                </button>
+                <input id="volumeControl" type="range" min="0" max="1" step="0.05" value="0.7" class="w-20 accent-amber-500 cursor-pointer">
+            </div>
+
+            <!-- Time Speed Simulation Toggle -->
+            <button id="btnFastForward" class="px-3 py-2 bg-stone-800 hover:bg-stone-700 text-amber-300 rounded-xl text-xs font-semibold border border-amber-900/60 transition">
+                Symulacja: <span id="speedStatus">Rzeczywisty</span>
+            </button>
+        </div>
+
+        <!-- Digital Mirror display info -->
+        <div class="mt-3 pt-2 border-t border-amber-900/40 flex justify-between items-center text-xs text-amber-400/70">
+            <span>Czas systemowy: <strong id="digitalClock" class="text-amber-200">00:00:00</strong></span>
+            <span id="statusText">Czekanie na pełną godzinę...</span>
+        </div>
+    </footer>
+
+    <!-- Audio & Logic Scripts -->
+    <script>
+        // Web Audio API Synthesizer for Authentic Cuckoo Sound
+        class CuckooAudio {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+                this.volume = 0.7;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playSingleKuku() {
+                if (this.isMuted) return;
+                this.init();
+
+                const now = this.ctx.currentTime;
+                
+                // Master Volume for this chime
+                const masterGain = this.ctx.createGain();
+                masterGain.gain.setValueAtTime(this.volume, now);
+                masterGain.connect(this.ctx.destination);
+
+                // Note 1: "KU" (Higher Pitch, e.g., F5 ~ 698Hz)
+                this.playTone(698, now, 0.18, masterGain);
+
+                // Note 2: "KU" (Lower Pitch, e.g., C5 ~ 523Hz)
+                this.playTone(523, now + 0.22, 0.35, masterGain);
+            }
+
+            playTone(freq, startTime, duration, destination) {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                // Flute-like warm tone (sine with slight triangle mix)
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, startTime);
+                // Pitch bend slightly down for organic wood pipe acoustics
+                osc.frequency.exponentialRampToValueAtTime(freq * 0.96, startTime + duration);
+
+                // Envelope
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(0.8, startTime + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                osc.connect(gain);
+                gain.connect(destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            }
+
+            playMechanicalClick() {
+                if (this.isMuted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                
+                // Short noise buffer for door opening latch sound
+                const bufferSize = this.ctx.sampleRate * 0.05;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1200;
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.3 * this.volume, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start(now);
+            }
+        }
+
+        // Main Application Controller
+        document.addEventListener('DOMContentLoaded', () => {
+            const audio = new CuckooAudio();
+
+            // DOM Elements
+            const hourHand = document.getElementById('hourHand');
+            const minuteHand = document.getElementById('minuteHand');
+            const secondHand = document.getElementById('secondHand');
+            const digitalClock = document.getElementById('digitalClock');
+            
+            const cuckooHouse = document.getElementById('cuckooHouse');
+            const birdBody = document.getElementById('birdBody');
+            const statusText = document.getElementById('statusText');
+            
+            const btnTestCuckoo = document.getElementById('btnTestCuckoo');
+            const btnMute = document.getElementById('btnMute');
+            const iconSoundOn = document.getElementById('iconSoundOn');
+            const iconSoundOff = document.getElementById('iconSoundOff');
+            const volumeControl = document.getElementById('volumeControl');
+            const btnFastForward = document.getElementById('btnFastForward');
+            const speedStatus = document.getElementById('speedStatus');
+
+            // State variables
+            let isFastForward = false;
+            let simulatedTime = new Date();
+            let isChiming = false;
+            let lastChimedHour = -1;
+
+            // Audio Interaction unlock
+            const unlockAudio = () => {
+                audio.init();
+                document.removeEventListener('click', unlockAudio);
+            };
+            document.addEventListener('click', unlockAudio);
+
+            // Mute & Volume
+            btnMute.addEventListener('click', () => {
+                audio.isMuted = !audio.isMuted;
+                iconSoundOn.classList.toggle('hidden', audio.isMuted);
+                iconSoundOff.classList.toggle('hidden', !audio.isMuted);
+            });
+
+            volumeControl.addEventListener('input', (e) => {
+                audio.volume = parseFloat(e.target.value);
+            });
+
+            // Fast forward simulation toggle
+            btnFastForward.addEventListener('click', () => {
+                isFastForward = !isFastForward;
+                speedStatus.textContent = isFastForward ? 'Przyspieszony (x60)' : 'Rzeczywisty';
+                btnFastForward.classList.toggle('bg-amber-700', isFastForward);
+                btnFastForward.classList.toggle('text-white', isFastForward);
+            });
+
+            // Trigger Full Cuckoo Sequence
+            async function triggerCuckooSequence(count) {
+                if (isChiming) return;
+                isChiming = true;
+
+                statusText.textContent = `Kukułka śpiewa (${count}x)...`;
+
+                // 1. Open doors & mechanical sound
+                audio.playMechanicalClick();
+                cuckooHouse.classList.add('doors-open');
+                
+                await sleep(400);
+
+                // 2. Extend bird
+                cuckooHouse.classList.add('cuckoo-active');
+                await sleep(500);
+
+                // 3. Perform Chimes equal to hour count
+                for (let i = 0; i < count; i++) {
+                    birdBody.classList.add('bird-singing');
+                    audio.playSingleKuku();
+                    await sleep(450);
+                    birdBody.classList.remove('bird-singing');
+                    await sleep(350);
+                }
+
+                // 4. Retract bird
+                cuckooHouse.classList.remove('cuckoo-active');
+                await sleep(500);
+
+                // 5. Close doors
+                cuckooHouse.classList.remove('doors-open');
+                audio.playMechanicalClick();
+                await sleep(400);
+
+                statusText.textContent = 'Czekanie na pełną godzinę...';
+                isChiming = false;
+            }
+
+            // Manual Test Button Event
+            btnTestCuckoo.addEventListener('click', () => {
+                const now = getClockTime();
+                let hours = now.getHours() % 12;
+                hours = hours === 0 ? 12 : hours;
+                triggerCuckooSequence(hours);
+            });
+
+            // Utility Sleep
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            // Get Current Time (Real or Simulated)
+            function getClockTime() {
+                if (isFastForward) {
+                    simulatedTime = new Date(simulatedTime.getTime() + 1000 * 60); // Advance 1 min per tick
+                    return simulatedTime;
+                } else {
+                    simulatedTime = new Date();
+                    return simulatedTime;
+                }
+            }
+
+            // Clock Loop
+            function updateClock() {
+                const now = getClockTime();
+
+                const seconds = now.getSeconds();
+                const minutes = now.getMinutes();
+                const hours = now.getHours();
+
+                // Calculate hand rotations
+                const secondDeg = (seconds / 60) * 360;
+                const minuteDeg = ((minutes + seconds / 60) / 60) * 360;
+                const hourDeg = (((hours % 12) + minutes / 60) / 12) * 360;
+
+                // Apply rotations
+                secondHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${secondDeg}deg)`;
+                minuteHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${minuteDeg}deg)`;
+                hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourDeg}deg)`;
+
+                // Digital text mirror
+                const hh = String(hours).padStart(2, '0');
+                const mm = String(minutes).padStart(2, '0');
+                const ss = String(seconds).padStart(2, '0');
+                digitalClock.textContent = `${hh}:${mm}:${ss}`;
+
+                // Check for Full Hour Trigger (00 minutes and 00 seconds)
+                if (minutes === 0 && seconds === 0 && lastChimedHour !== hours) {
+                    lastChimedHour = hours;
+                    let chimeCount = hours % 12;
+                    chimeCount = chimeCount === 0 ? 12 : chimeCount;
+                    triggerCuckooSequence(chimeCount);
+                }
+
+                // Reset chimed hour guard
+                if (minutes !== 0) {
+                    lastChimedHour = -1;
+                }
+            }
+
+            // Run clock update every second (or faster if fast forward)
+            setInterval(updateClock, 1000);
+            updateClock();
+        });
+    </script>
+</body>
+</html>
